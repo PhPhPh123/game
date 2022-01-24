@@ -1,7 +1,5 @@
 import random
-
 import pygame
-from random import randint
 
 pygame.init()
 pygame.mixer.init()
@@ -10,7 +8,7 @@ pygame.mixer.init()
 Loaded images and files
 '''
 
-main_map_image = pygame.image.load('zombie_game/main_map.png')
+main_map_image = pygame.image.load('main_map_blocks.png')
 
 '''
 Base parameters of game include colors, game window, etc
@@ -180,7 +178,7 @@ def blocks(x, y, move: str, speed):
         else:
             return True
 
-
+#test
 
 game = True  # Flag of active game
 
