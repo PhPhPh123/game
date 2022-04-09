@@ -47,10 +47,16 @@ class MainPlayer(pygame.sprite.Sprite):  # class about actions of main player
         self.noworientation = 0  # текущее ориентация(направление взгляда)игрока в пространстве
         self.blocksdict = blocksdict  # актуальный список блоков(преград) на игровой карте
         self.speed = 10  # параметр скорости основного игрока
-        self.leftflag = False
-        self.rightflag = False
-        self.upflag = False
-        self.downflag = False
+
+        self.leftflag_Moving = False
+        self.rightflag_Moving = False
+        self.upflag_Moving = False
+        self.downflag_Moving = False
+
+        self.leftflag_Orientation = False
+        self.rightflag_Orientation = False
+        self.upflag_Orientation = False
+        self.downflag_Orientation = False
 
     def orientation(self, angle: int):  # ротирует изображение исходя из угла полученного в параметре angle
         rotated_image = pygame.transform.rotate(self.image, angle)
@@ -58,7 +64,7 @@ class MainPlayer(pygame.sprite.Sprite):  # class about actions of main player
         return None
 
     def imgform(self):  # определяет индекс изображения и возвращает текущее изображение для отрисовки
-        if any((self.leftflag, self.rightflag, self.upflag, self.downflag)):
+        if any((self.leftflag_Moving, self.rightflag_Moving, self.upflag_Moving, self.downflag_Moving)):
             self.imageindex += 1
             if self.imageindex > 3:
                 self.imageindex = 0
@@ -69,30 +75,30 @@ class MainPlayer(pygame.sprite.Sprite):  # class about actions of main player
         if keys[pygame.K_a] and self.rect.centerx > 20 and blocks(self.rect.centerx, self.rect.centery, 'left',
                                                                   self.speed):
             self.rect.centerx -= self.speed
-            self.leftflag = True
+            self.leftflag_Moving = True
         else:
-            self.leftflag = False
+            self.leftflag_Moving = False
 
         if keys[pygame.K_d] and self.rect.centerx < width_window - 20 and blocks(self.rect.centerx, self.rect.centery,
                                                                                  'right', self.speed):
             self.rect.centerx += self.speed
-            self.rightflag = True
+            self.rightflag_Moving = True
         else:
-            self.rightflag = False
+            self.rightflag_Moving = False
 
         if keys[pygame.K_w] and self.rect.centery > 20 and blocks(self.rect.centerx, self.rect.centery, 'up',
                                                                   self.speed):
             self.rect.centery -= self.speed
-            self.upflag = True
+            self.upflag_Moving = True
         else:
-            self.upflag = False
+            self.upflag_Moving = False
 
         if keys[pygame.K_s] and self.rect.centery < height_window - 20 and blocks(self.rect.centerx, self.rect.centery,
                                                                                   'down', self.speed):
             self.rect.centery += self.speed
-            self.downflag = True
+            self.downflag_Moving = True
         else:
-            self.downflag = False
+            self.downflag_Moving = False
 
         return self.rect.centery, self.rect.centerx
 
@@ -104,27 +110,56 @@ class MainPlayer(pygame.sprite.Sprite):  # class about actions of main player
         leftorientation = 180
         downorientation = 270
         uporientation = 90
+
         '''определение направление игрока согласно нажатой клавише, при отсутствии нажатия сохраняет прошлое значение
         через переменную noworintation '''
+
         if keys[pygame.K_RIGHT]:
             self.noworientation = rightorientation
             self.orientation(rightorientation)
+            self.rightflag_Orientation = True
+            self.leftflag_Orientation = False
+            self.upflag_Orientation = False
+            self.downflag_Orientation = False
+
         elif keys[pygame.K_UP]:
             self.noworientation = uporientation
             self.orientation(uporientation)
+            self.upflag_Orientation = True
+            self.rightflag_Orientation = False
+            self.leftflag_Orientation = False
+            self.downflag_Orientation = False
+
         elif keys[pygame.K_LEFT]:
             self.noworientation = leftorientation
             self.orientation(leftorientation)
+            self.leftflag_Orientation = True
+            self.rightflag_Orientation = False
+            self.upflag_Orientation = False
+            self.downflag_Orientation = False
+
         elif keys[pygame.K_DOWN]:
             self.noworientation = downorientation
             self.orientation(downorientation)
+            self.downflag_Orientation = True
+            self.rightflag_Orientation = False
+            self.upflag_Orientation = False
+            self.leftflag_Orientation = False
+
         else:
             self.orientation(self.noworientation)
         return None
 
     def startshooting(self, keys):
-        if keys[pygame.K_f]:
-            maingunlist.append(MainPlayerGun(self.rect.centerx, self.rect.centery, 2, RED, 50))
+        if keys[pygame.K_LCTRL]:
+            if self.upflag_Orientation:
+                maingunlist.append(MainPlayerGun(self.rect.centerx, self.rect.centery, 2, RED, 50, "up"))
+            if self.downflag_Orientation:
+                maingunlist.append(MainPlayerGun(self.rect.centerx, self.rect.centery, 2, RED, 50, "down"))
+            if self.rightflag_Orientation:
+                maingunlist.append(MainPlayerGun(self.rect.centerx, self.rect.centery+34, 2, RED, 50, "right"))
+            if self.leftflag_Orientation:
+                maingunlist.append(MainPlayerGun(self.rect.centerx, self.rect.centery+34, 2, RED, 50, "left"))
 
     def update(self, *args, **kwargs):  # центральный метод обновления, вызывающий иные методы
         keys = pygame.key.get_pressed()
@@ -136,16 +171,20 @@ class MainPlayer(pygame.sprite.Sprite):  # class about actions of main player
 
 
 class MainPlayerGun(pygame.sprite.Sprite):
-    def __init__(self, x, y, radius, color, speedproj):
+    def __init__(self, x, y, radius, color, speedproj, direction_of_fire):
         pygame.sprite.Sprite.__init__(self)
         self.x = x
         self.y = y
         self.radius = radius
         self.color = color
         self.speedproj = speedproj
+        self.direction_of_fire = direction_of_fire
 
     def DrawProjectile(self, win):
-        pygame.draw.circle(win, self.color, (self.x+55, self.y+25), self.radius)
+        if self.direction_of_fire == "up" or "down":
+            pygame.draw.circle(win, self.color, (self.x + 55, self.y + 25), self.radius)
+        elif self.direction_of_fire == "left" or "right":
+            pygame.draw.circle(win, self.color, (self.x + 55, self.y + 25), self.radius)
 
 
 def blocks(x, y, move: str, speed):
@@ -178,7 +217,6 @@ def blocks(x, y, move: str, speed):
         else:
             return True
 
-#test
 
 game = True  # Flag of active game
 
@@ -199,8 +237,19 @@ while game:  # Main game cycle
     win.blit(main_map_image, (0, 0))  # создание на экране главной карты
 
     for proj in maingunlist:
-        if proj.y > 0:
+        if proj.y > 0 and proj.direction_of_fire == "up":
             proj.y -= proj.speedproj - random.randint(-10, 10)
+            proj.DrawProjectile(win)
+
+        if proj.y > 0 and proj.direction_of_fire == "down":
+            proj.y += proj.speedproj + random.randint(-10, 10)
+            proj.DrawProjectile(win)
+
+        if proj.x < width_window and proj.direction_of_fire == "right":
+            proj.x += proj.speedproj + random.randint(-10, 10)
+            proj.DrawProjectile(win)
+        if proj.x > 0 and proj.direction_of_fire == "left":
+            proj.x -= proj.speedproj - random.randint(-10, 10)
             proj.DrawProjectile(win)
 
     all_sprites.update()  # вызов методов update для отрисовки всех спрайтов
