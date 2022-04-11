@@ -1,11 +1,4 @@
-import random
-import pygame
-
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
+from global_names_and_imports import *
 
 
 class MainPlayerGun(pygame.sprite.Sprite):
@@ -18,27 +11,27 @@ class MainPlayerGun(pygame.sprite.Sprite):
         self.speedproj = speedproj
         self.direction_of_fire = direction_of_fire
 
-    def DrawProjectile(self, win):
+    def DrawProjectile(self):
         if self.direction_of_fire == "up" or "down":
             pygame.draw.circle(win, self.color, (self.x + 55, self.y + 25), self.radius)
         elif self.direction_of_fire == "left" or "right":
             pygame.draw.circle(win, self.color, (self.x + 55, self.y + 25), self.radius)
 
 
-def main_gun_func(maingunlist, width_window, height_window, win):
+def main_gun_func():
     for proj in maingunlist:
         if proj.y > 0 and proj.direction_of_fire == "up":
             proj.y -= proj.speedproj - random.randint(-10, 10)
-            proj.DrawProjectile(win)
+            proj.DrawProjectile()
 
         if proj.y < height_window and proj.direction_of_fire == "down":
             proj.y += proj.speedproj + random.randint(-10, 10)
-            proj.DrawProjectile(win)
+            proj.DrawProjectile()
 
         if proj.x < width_window and proj.direction_of_fire == "right":
             proj.x += proj.speedproj + random.randint(-10, 10)
-            proj.DrawProjectile(win)
+            proj.DrawProjectile()
 
         if proj.x > 0 and proj.direction_of_fire == "left":
             proj.x -= proj.speedproj - random.randint(-10, 10)
-            proj.DrawProjectile(win)
+            proj.DrawProjectile()
