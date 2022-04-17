@@ -6,15 +6,21 @@ from global_names_and_imports import *
 class Base_Subjects(pygame.sprite.Sprite):  # class about actions of main player
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.rect = self.image.get_rect()  # параметр определяющий положение игрока на экране
-        self.rect.center = (width_window / 2, height_window / 2)  # стартовая точка положения в начале игры
+
+    def unit_deploy(self, angle: int):  # ротирует изображение исходя из угла полученного в параметре angle
+        rotated_image = pygame.transform.rotate(self.image, angle)
+        win.blit(rotated_image, (self.rect.centerx, self.rect.centery))  # отрисовка разворота субъекта
+        return None
 
 
 class MainPlayer(Base_Subjects):  # class about actions of main player
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.images = [pygame.image.load('1.png'), pygame.image.load('2.png'), pygame.image.load('3.png'),
-                       pygame.image.load('4.png')]  # список загруженных изображений основного игрока
+        Base_Subjects.__init__(self)
+        # список загруженных изображений основного игрока
+        self.images = [pygame.image.load('Images/1.png'),
+                       pygame.image.load('Images/2.png'),
+                       pygame.image.load('Images/3.png'),
+                       pygame.image.load('Images/4.png')]
         self.imageindex = 0  # индекс списка изображений, который меняется в методе imgform
         self.image = self.images[self.imageindex]  # основное изображение игрока отображаемое на экране
         self.rect = self.image.get_rect()  # параметр определяющий положение игрока на экране
@@ -31,11 +37,6 @@ class MainPlayer(Base_Subjects):  # class about actions of main player
         self.rightflag_Orientation = False
         self.upflag_Orientation = False
         self.downflag_Orientation = False
-
-    def orientation(self, angle: int):  # ротирует изображение исходя из угла полученного в параметре angle
-        rotated_image = pygame.transform.rotate(self.image, angle)
-        win.blit(rotated_image, (self.rect.centerx, self.rect.centery))  # отрисовка разворота игрока
-        return None
 
     def imgform(self):  # определяет индекс изображения и возвращает текущее изображение для отрисовки
         if any((self.leftflag_Moving, self.rightflag_Moving, self.upflag_Moving, self.downflag_Moving)):
@@ -92,7 +93,7 @@ class MainPlayer(Base_Subjects):  # class about actions of main player
 
         if keys[pygame.K_RIGHT]:
             self.noworientation = rightorientation
-            self.orientation(rightorientation)
+            self.unit_deploy(rightorientation)
             self.rightflag_Orientation = True
             self.leftflag_Orientation = False
             self.upflag_Orientation = False
@@ -100,7 +101,7 @@ class MainPlayer(Base_Subjects):  # class about actions of main player
 
         elif keys[pygame.K_UP]:
             self.noworientation = uporientation
-            self.orientation(uporientation)
+            self.unit_deploy(uporientation)
             self.upflag_Orientation = True
             self.rightflag_Orientation = False
             self.leftflag_Orientation = False
@@ -108,7 +109,7 @@ class MainPlayer(Base_Subjects):  # class about actions of main player
 
         elif keys[pygame.K_LEFT]:
             self.noworientation = leftorientation
-            self.orientation(leftorientation)
+            self.unit_deploy(leftorientation)
             self.leftflag_Orientation = True
             self.rightflag_Orientation = False
             self.upflag_Orientation = False
@@ -116,14 +117,14 @@ class MainPlayer(Base_Subjects):  # class about actions of main player
 
         elif keys[pygame.K_DOWN]:
             self.noworientation = downorientation
-            self.orientation(downorientation)
+            self.unit_deploy(downorientation)
             self.downflag_Orientation = True
             self.rightflag_Orientation = False
             self.upflag_Orientation = False
             self.leftflag_Orientation = False
 
         else:
-            self.orientation(self.noworientation)
+            self.unit_deploy(self.noworientation)
         return None
 
     def startshooting(self, keys):
@@ -146,14 +147,50 @@ class MainPlayer(Base_Subjects):  # class about actions of main player
         return None
 
 
-class Zombie(Base_Subjects):
+class Zombie(MainPlayer):
     def __init__(self):
-        super().__init__()
-        self.images = [pygame.image.load('Screenshot_9.png')]  # список загруженных изображений основного игрока
-        self.imageindex = 0  # индекс списка изображений, который меняется в методе imgform
-        self.image = self.images[self.imageindex]  # основное изображение игрока отображаемое на экране
+        pygame.sprite.Sprite.__init__(self)
+        self.images = [pygame.image.load('Images/zombie1.png'),
+                       pygame.image.load('Images/zombie2.png'),
+                       pygame.image.load('Images/zombie3.png'),
+                       pygame.image.load('Images/zombie4.png')]
+        self.imageindex = 0
+        self.image = self.images[self.imageindex]
         self.rect = self.image.get_rect()  # параметр определяющий положение игрока на экране
         self.rect.center = (150, 150)
+        self.moving = 1
+
+    def zombiemoving(self):
+        if main_player.rect.centerx > self.rect.centerx:
+            # self.rect.centerx = self.rect.centerx + max(self.moving, main_player.rect.centerx - self.rect.centerx)
+            self.rect.centerx += self.moving
+
+        elif main_player.rect.centerx < self.rect.centerx:
+            # self.rect.centerx = self.rect.centerx - max(self.moving, main_player.rect.centerx - self.rect.centerx)
+            self.rect.centerx -= self.moving
+        if main_player.rect.centery > self.rect.centery:
+            # self.rect.centery = self.rect.centery + max(self.moving, main_player.rect.centery - self.rect.centery)
+            self.rect.centery += self.moving
+        elif main_player.rect.centery < self.rect.centery:
+            # self.rect.centery = self.rect.centery - max(self.moving, main_player.rect.centery - self.rect.centery)
+            self.rect.centery -= self.moving
+        # win.blit(self.image, (self.rect.centerx, self.rect.centery))
+
+    def imgform(self):
+        pass
+
+    def zombie_orintation(self):
+        rel_x = main_player.rect.centerx - self.rect.centerx
+        rel_y = main_player.rect.centery - self.rect.centery
+        angle = (180 / pi) * -atan2(rel_y, rel_x)
+        return angle
 
     def update(self, *args, **kwargs):  # центральный метод обновления, вызывающий иные методы
+        self.zombiemoving()
+        self.unit_deploy(int(self.zombie_orintation()))
         return None
+
+
+main_player = MainPlayer()
+main_zombie = Zombie()
+
