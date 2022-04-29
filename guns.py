@@ -12,10 +12,7 @@ class MainPlayerGun(pygame.sprite.Sprite):
         self.direction_of_fire = direction_of_fire
 
     def DrawProjectile(self):
-        if self.direction_of_fire == "up" or "down":
-            pygame.draw.circle(win, self.color, (self.x + 55, self.y + 25), self.radius)
-        elif self.direction_of_fire == "left" or "right":
-            pygame.draw.circle(win, self.color, (self.x + 55, self.y + 25), self.radius)
+        pygame.draw.circle(win, self.color, (self.x + 55, self.y + 25), self.radius)
 
 
 def main_gun_func():
@@ -35,3 +32,6 @@ def main_gun_func():
         if proj.x > 0 and proj.direction_of_fire == "left":
             proj.x -= proj.speedproj - random.randint(-10, 10)
             proj.DrawProjectile()
+
+
+

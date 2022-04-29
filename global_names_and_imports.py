@@ -1,7 +1,7 @@
 import pygame
 import random
 import pprint
-from math import atan2, pi
+from math import pi, atan2
 
 """
 Static global variables
@@ -26,6 +26,8 @@ Dynamic global variables
 maingunlist = []
 
 active_subjects = []
+
+zombie_list = []
 
 ''' В этом словаре находятся все координаты блоков(стены, край карты, баррикады, иные блоки). Ключем служит номер
 объекта, а значением его координаты, где первые два значения это промежуток между x1 и x2, а последующие два значения

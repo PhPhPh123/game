@@ -10,6 +10,10 @@ class Base_Subjects(pygame.sprite.Sprite):  # class about actions of main player
     def unit_deploy(self, angle: int):  # ротирует изображение исходя из угла полученного в параметре angle
         rotated_image = pygame.transform.rotate(self.image, angle)
         win.blit(rotated_image, (self.rect.centerx, self.rect.centery))  # отрисовка разворота субъекта
+        pygame.draw.circle(win, RED, (self.rect.centerx+45, self.rect.centery+45), 2)
+        pygame.draw.circle(win, RED, (self.rect.centerx + 45, self.rect.centery + 75), 2)
+        pygame.draw.circle(win, RED, (self.rect.centerx + 60, self.rect.centery + 45), 2)
+        pygame.draw.circle(win, RED, (self.rect.centerx + 60, self.rect.centery + 75), 2)
         return None
 
 
@@ -159,22 +163,20 @@ class Zombie(MainPlayer):
         self.rect = self.image.get_rect()  # параметр определяющий положение игрока на экране
         self.rect.center = (150, 150)
         self.moving = 1
+        self.hp = 8
 
     def zombiemoving(self):
         if main_player.rect.centerx > self.rect.centerx:
-            # self.rect.centerx = self.rect.centerx + max(self.moving, main_player.rect.centerx - self.rect.centerx)
             self.rect.centerx += self.moving
 
         elif main_player.rect.centerx < self.rect.centerx:
-            # self.rect.centerx = self.rect.centerx - max(self.moving, main_player.rect.centerx - self.rect.centerx)
             self.rect.centerx -= self.moving
+
         if main_player.rect.centery > self.rect.centery:
-            # self.rect.centery = self.rect.centery + max(self.moving, main_player.rect.centery - self.rect.centery)
             self.rect.centery += self.moving
+
         elif main_player.rect.centery < self.rect.centery:
-            # self.rect.centery = self.rect.centery - max(self.moving, main_player.rect.centery - self.rect.centery)
             self.rect.centery -= self.moving
-        # win.blit(self.image, (self.rect.centerx, self.rect.centery))
 
     def imgform(self):
         pass
@@ -185,6 +187,15 @@ class Zombie(MainPlayer):
         angle = (180 / pi) * -atan2(rel_y, rel_x)
         return angle
 
+    def unit_deploy(self, angle: int):  # ротирует изображение исходя из угла полученного в параметре angle
+        rotated_image = pygame.transform.rotate(self.image, angle)
+        win.blit(rotated_image, (self.rect.centerx, self.rect.centery))  # отрисовка разворота субъекта
+        pygame.draw.circle(win, RED, (self.rect.centerx+45, self.rect.centery+45), 2)
+        pygame.draw.circle(win, RED, (self.rect.centerx + 45, self.rect.centery + 85), 2)
+        pygame.draw.circle(win, RED, (self.rect.centerx + 100, self.rect.centery + 45), 2)
+        pygame.draw.circle(win, RED, (self.rect.centerx + 100, self.rect.centery + 85), 2)
+        return None
+
     def update(self, *args, **kwargs):  # центральный метод обновления, вызывающий иные методы
         self.zombiemoving()
         self.unit_deploy(int(self.zombie_orintation()))
@@ -193,4 +204,3 @@ class Zombie(MainPlayer):
 
 main_player = MainPlayer()
 main_zombie = Zombie()
-
